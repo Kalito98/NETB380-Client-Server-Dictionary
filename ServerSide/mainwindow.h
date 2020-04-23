@@ -34,8 +34,6 @@ private slots:
     void displayMessage(const QString& str);
     void sendMessage(QTcpSocket* socket, const QString& str);
 
-    void on_pushButton_sendMessage_clicked();
-
 private:
     Ui::MainWindow *ui;
     // declare our server

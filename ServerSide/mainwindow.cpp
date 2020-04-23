@@ -59,7 +59,6 @@ void MainWindow::appendNewSocket(QTcpSocket* socket)
     // connect signal, which will be emitted each time there is new data in the socket waiting to be read
     connect(socket, SIGNAL(readyRead()), this , SLOT(readSocket()));
     connect(socket, SIGNAL(disconnected()), this , SLOT(discardSocket()));
-    this->ui->comboBox_receiver->addItem(QString::number(socket->socketDescriptor()));
     // this is just for testing purposes, so we can track if we correctly identify different
     // clients trying to connect to our server
     displayMessage(QString("INFO::Client with sockd:%1 has just entered the room").arg(socket->socketDescriptor()));
@@ -109,38 +108,6 @@ void MainWindow::discardSocket()
     socket->deleteLater();
 }
 
-// send message when button is clicked
-void MainWindow::on_pushButton_sendMessage_clicked()
-{
-    // here we check which is the receiver
-    // and then we call on sendMessage and delete content from the UI
-    // pretty sure when we change the implementation we dont need
-    // both these if's, just need to directly call sendMessage and pass to it the
-    // socket that we should be sending data to
-    QString receiver = this->ui->comboBox_receiver->currentText();
-
-    if(receiver=="Broadcast")
-    {
-        foreach (QTcpSocket* socket,socket_list)
-        {
-            sendMessage(socket, NULL);
-        }
-    }
-    else
-    {
-        foreach (QTcpSocket* socket,socket_list)
-        {
-            if(socket->socketDescriptor() == receiver.toLongLong())
-            {
-                sendMessage(socket, NULL);
-                break;
-            }
-        }
-    }
-    this->ui->lineEdit_message->clear();
-}
-
-
 // function that sends message through socket
 void MainWindow::sendMessage(QTcpSocket* socket, const QString& incoming)
 {
@@ -154,7 +121,7 @@ void MainWindow::sendMessage(QTcpSocket* socket, const QString& incoming)
             int x = QString::compare(str, incoming, Qt::CaseInsensitive);
             if (x == 0) {
                str = "Hi";
-            } else {
+            } else if (str == "Bye") {
                 str = incoming;
             }
 
@@ -182,14 +149,9 @@ void MainWindow::displayMessage(const QString& str)
 {
     this->ui->textBrowser_receivedMessages->append(str);
 
-
-    QString receiver = this->ui->comboBox_receiver->currentText();
-    if(receiver=="Broadcast")
+    foreach (QTcpSocket* socket,socket_list)
     {
-        foreach (QTcpSocket* socket,socket_list)
-        {
-            sendMessage(socket, str);
-        }
+        sendMessage(socket, str);
     }
 }
 
