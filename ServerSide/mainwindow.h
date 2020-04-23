@@ -32,7 +32,7 @@ private slots:
     void discardSocket();
 
     void displayMessage(const QString& str);
-    void sendMessage(QTcpSocket* socket);
+    void sendMessage(QTcpSocket* socket, const QString& str);
 
     void on_pushButton_sendMessage_clicked();
 

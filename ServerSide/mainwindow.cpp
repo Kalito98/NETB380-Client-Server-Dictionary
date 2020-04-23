@@ -84,7 +84,7 @@ void MainWindow::readSocket()
         QString receiveString;
         in >> receiveString;
         // display the data that we have received
-        receiveString.prepend(QString("%1 :: ").arg(socket->socketDescriptor()));
+       // receiveString.prepend(QString("%1 :: ").arg(socket->socketDescriptor()));
 
         // emit newMessage signal and pass our interpreted message
         emit newMessage(receiveString);
@@ -123,7 +123,7 @@ void MainWindow::on_pushButton_sendMessage_clicked()
     {
         foreach (QTcpSocket* socket,socket_list)
         {
-            sendMessage(socket);
+            sendMessage(socket, NULL);
         }
     }
     else
@@ -132,7 +132,7 @@ void MainWindow::on_pushButton_sendMessage_clicked()
         {
             if(socket->socketDescriptor() == receiver.toLongLong())
             {
-                sendMessage(socket);
+                sendMessage(socket, NULL);
                 break;
             }
         }
@@ -142,7 +142,7 @@ void MainWindow::on_pushButton_sendMessage_clicked()
 
 
 // function that sends message through socket
-void MainWindow::sendMessage(QTcpSocket* socket)
+void MainWindow::sendMessage(QTcpSocket* socket, const QString& incoming)
 {
     if(socket)
     {
@@ -150,7 +150,13 @@ void MainWindow::sendMessage(QTcpSocket* socket)
         {
             // here instead of getting message from UI
             // we should generate our own QString
-            QString str = this->ui->lineEdit_message->text();
+            QString str = "Hello";
+            int x = QString::compare(str, incoming, Qt::CaseInsensitive);
+            if (x == 0) {
+               str = "Hi";
+            } else {
+                str = incoming;
+            }
 
             QByteArray block;
             QDataStream out(&block, QIODevice::WriteOnly);
@@ -175,5 +181,15 @@ void MainWindow::sendMessage(QTcpSocket* socket)
 void MainWindow::displayMessage(const QString& str)
 {
     this->ui->textBrowser_receivedMessages->append(str);
+
+
+    QString receiver = this->ui->comboBox_receiver->currentText();
+    if(receiver=="Broadcast")
+    {
+        foreach (QTcpSocket* socket,socket_list)
+        {
+            sendMessage(socket, str);
+        }
+    }
 }
 

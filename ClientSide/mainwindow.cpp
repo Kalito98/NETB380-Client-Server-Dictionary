@@ -39,7 +39,7 @@ void MainWindow::readSocket()
     {
         QString receiveString;
         in >> receiveString;
-        receiveString.prepend(QString("%1 :: ").arg(socket->socketDescriptor()));
+        // receiveString.prepend(QString("%1 :: ").arg(socket->socketDescriptor()));
         emit newMessage(receiveString);
     }
 }
