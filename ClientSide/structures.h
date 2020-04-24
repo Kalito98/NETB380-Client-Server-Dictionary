@@ -3,6 +3,7 @@
 
 #include <QString>
 
+//stuctures.h contains the models of the objects. No logical implementation. Using "Q" objects were possible to be easier to serialize later
 struct User {
    public:
     QString firstName;

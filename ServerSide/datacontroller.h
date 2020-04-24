@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "databasecontroller.h"
-#include "user.h"
+#include "structures.h"
 
 using namespace std;
 
@@ -12,7 +12,7 @@ class DataController {
 public:
     DataController(DatabaseController* databaseController);
 
-    vector<User>* GetAllUsers();
+    vector<User> GetAllUsers();
 
 private:
     DatabaseController* databaseController;

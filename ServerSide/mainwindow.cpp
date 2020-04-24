@@ -1,5 +1,14 @@
+#include <vector>
+#include <QVector>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+
+template<class T>
+T get(QDataStream &stream) {
+    T value;
+    stream >> value;
+    return value;
+}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -8,6 +17,11 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     m_server = new QTcpServer();
+
+    databaseController = new DatabaseController("../dictionary_database.db");
+    databaseController->Connect();
+
+    dataController = new DataController(databaseController);
 
     if(m_server->listen(QHostAddress::Any, 1234))
     {
@@ -118,11 +132,20 @@ void MainWindow::sendMessage(QTcpSocket* socket, const QString& incoming)
             // here instead of getting message from UI
             // we should generate our own QString
             QString str = "Hello";
+            QVector<User> usersQVector;
+
             int x = QString::compare(str, incoming, Qt::CaseInsensitive);
             if (x == 0) {
                str = "Hi";
-            } else if (str == "Bye") {
-                str = incoming;
+            }
+
+            str = "GetAllUsers";
+            x = QString::compare(str, incoming, Qt::CaseInsensitive);
+            if (x == 0) {
+                //Get all users in a Stucture User Vector.
+                vector<User> usersVector = dataController->GetAllUsers();
+                //Convert the stdVector to QVector using build in methods.
+                usersQVector = QVector<User>::fromStdVector(usersVector);
             }
 
             QByteArray block;
@@ -130,7 +153,8 @@ void MainWindow::sendMessage(QTcpSocket* socket, const QString& incoming)
 
             // serialize our QString
             out.setVersion(QDataStream::Qt_5_12);
-            out << str;
+            // serialize directly the QVector thanks to the aditional serlization methods
+            out << usersQVector;
             // write inside the socket
             socket->write(block);
         }
@@ -155,3 +179,18 @@ void MainWindow::displayMessage(const QString& str)
     }
 }
 
+
+//methods used to serialize and deserialize Structure objects
+QDataStream & operator << (QDataStream &stream, const User &_class)
+{
+    stream << static_cast<qint32>(_class.isAdmin) << _class.firstName << _class.lastName << _class.email << _class.password;
+    return stream;
+}
+
+QDataStream & operator >> (QDataStream &stream, User &_class)
+{
+    qint32 tempInt;
+    stream >> tempInt; _class.isAdmin=tempInt;
+
+    return stream >> _class.firstName >> _class.lastName >> _class.email >> _class.password;
+}

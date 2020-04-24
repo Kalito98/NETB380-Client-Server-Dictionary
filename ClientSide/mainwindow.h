@@ -9,6 +9,7 @@
 #include <QMetaType>
 #include <QString>
 #include <QTcpSocket>
+#include "structures.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -21,6 +22,10 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+    //methods used to serialize and deserialize Structure objects
+    friend QDataStream & operator << (QDataStream &stream, const User & _class);
+    friend QDataStream & operator >> (QDataStream &stream, const User & _class);
 signals:
     void newMessage(QString);
 private slots:

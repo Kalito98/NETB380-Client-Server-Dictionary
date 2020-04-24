@@ -1,6 +1,13 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+template<class T>
+T get(QDataStream &stream) {
+    T value;
+    stream >> value;
+    return value;
+}
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -37,10 +44,20 @@ void MainWindow::readSocket()
 
     while (!in.atEnd())
     {
+        //TODO. Example: After requesting for AllUsers from the server it should expect as next response a QVector of users from the server. This applies for all requests
         QString receiveString;
-        in >> receiveString;
+        QVector<User> usersQVector;
+        in >> usersQVector;
         // receiveString.prepend(QString("%1 :: ").arg(socket->socketDescriptor()));
-        emit newMessage(receiveString);
+        // iterate over the result if the length is bigger than 0
+        if(usersQVector.length() != 0) {
+            for(User user : usersQVector){
+                emit newMessage(user.firstName);
+                emit newMessage(user.lastName);
+                emit newMessage(user.email);
+                emit newMessage(user.password);
+            }
+        }
     }
 }
 
@@ -82,3 +99,17 @@ void MainWindow::displayMessage(const QString& str)
     this->ui->textBrowser_receivedMessages->append(str);
 }
 
+//methods used to serialize and deserialize Structure objects
+QDataStream & operator << (QDataStream &stream, const User &_class)
+{
+    stream << static_cast<qint32>(_class.isAdmin) << _class.firstName << _class.lastName << _class.email << _class.password;
+    return stream;
+}
+
+QDataStream & operator >> (QDataStream &stream, User &_class)
+{
+    qint32 tempInt;
+    stream >> tempInt; _class.isAdmin=tempInt;
+
+    return stream >> _class.firstName >> _class.lastName >> _class.email >> _class.password;
+}

@@ -1,12 +1,13 @@
 #include "datacontroller.h"
+#include <QString>
 
 DataController::DataController(DatabaseController* databaseController) {
     this->databaseController = databaseController;
 }
 
-vector<User>* DataController::GetAllUsers() {
+vector<User> DataController::GetAllUsers() {
     vector<string>* usersVector = databaseController->GetAllUsers();
-    vector<User>* usersObjectVector = new vector<User>;
+    vector<User> usersObjectVector;
 
     int usersCount = usersVector->size() / 5;
 
@@ -17,8 +18,14 @@ vector<User>* DataController::GetAllUsers() {
         string password = usersVector->at(3 + (5 * i));
         int isAdmin = stoi(usersVector->at(4 + (5 * i)));
 
-        User user(firstName, lastName, email, password, isAdmin);
-        usersObjectVector->push_back(user);
+        User user;
+        user.firstName = QString::fromStdString(firstName);
+        user.lastName = QString::fromStdString(lastName);
+        user.email = QString::fromStdString(email);
+        user.password = QString::fromStdString(password);
+        user.isAdmin = isAdmin;
+
+        usersObjectVector.push_back(user);
     }
 
     return usersObjectVector;
