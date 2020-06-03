@@ -146,6 +146,11 @@ void MainWindow::sendMessage(QTcpSocket* socket, const QString& incoming)
                 vector<User> usersVector = dataController->GetAllUsers();
                 //Convert the stdVector to QVector using build in methods.
                 usersQVector = QVector<User>::fromStdVector(usersVector);
+
+
+                //Testing
+                User user = dataController->GetUserByEmail("test@nbu.com");
+                std::cout << user.firstName.toStdString() << std::endl;
             }
 
             QByteArray block;

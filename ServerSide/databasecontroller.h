@@ -16,12 +16,15 @@ public:
     string GetDbFilePath();
 
     vector<string>* GetAllUsers();
+    vector<string>* GetUserByEmail(string email);
+    bool CreateUser(string firstname, string lastname, string email, string password, int isAdmin);
 
 private:
     sqlite3 *database;
     char *dbFilePath;
 
     static int Callback(void *data, int argc, char **argv, char **azColName);
+    string quotesql(string s);
     void SetDbFilePath(char *dbFilePath);
 };
 #endif // DATABASECONTROLLER_H

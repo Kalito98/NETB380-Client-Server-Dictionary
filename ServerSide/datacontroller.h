@@ -13,6 +13,8 @@ public:
     DataController(DatabaseController* databaseController);
 
     vector<User> GetAllUsers();
+    User GetUserByEmail(string email);
+    bool CreateUser(string firstname, string lastname, string email, string password, int isAdmin);
 
 private:
     DatabaseController* databaseController;

@@ -32,20 +32,48 @@ int DatabaseController::Callback(void *data, int argc, char **argv, char **azCol
     return 0;
 }
 
+string DatabaseController::quotesql(string s) {
+    return string("'") + s + string("'");
+}
+
 vector<string>* DatabaseController::GetAllUsers() {
     string sqlQuery = "SELECT * FROM Users;";
     vector<string>* dataVector = new vector<string>;
 
     char *errmsg;
-    int retunCode = sqlite3_exec(database, sqlQuery.c_str(), Callback, (void *) dataVector, &errmsg);
-
-    if (retunCode != SQLITE_OK) {
-        //cerr << "Error SELECT" << endl;
-    } else {
-        //cout << "Operation OK!" << endl;
-    }
+    sqlite3_exec(database, sqlQuery.c_str(), Callback, (void *) dataVector, &errmsg);
 
     return dataVector;
+}
+
+vector<string>* DatabaseController::GetUserByEmail(string email) {
+    string sqlQuery = "SELECT * FROM Users WHERE Email = '" + email + "';";
+    vector<string>* dataVector = new vector<string>;
+
+    char *errmsg;
+    sqlite3_exec(database, sqlQuery.c_str(), Callback, (void *) dataVector, &errmsg);
+
+    return dataVector;
+}
+
+bool DatabaseController::CreateUser(string firstname, string lastname, string email, string password, int isAdmin) {
+    string sqlQuery = "INSERT INTO USERS (FirstName, LastName, Email, Password, isAdmin) VALUES ("
+            + quotesql(firstname) + ","
+            + quotesql(lastname) + ","
+            + quotesql(email) + ","
+            + quotesql(password) + ","
+            + std::to_string(isAdmin) + ");";
+    vector<string>* dataVector = new vector<string>;
+
+    char *errmsg;
+    int returnCode = sqlite3_exec(database, sqlQuery.c_str(), Callback, (void *) dataVector, &errmsg);
+
+    if (returnCode != SQLITE_OK) {
+        return false;
+    } else {
+        return true;
+    }
+
 }
 
 void DatabaseController::SetDbFilePath(char *dbFilePath) {
