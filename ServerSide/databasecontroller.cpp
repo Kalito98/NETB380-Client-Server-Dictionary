@@ -37,7 +37,7 @@ string DatabaseController::quotesql(string s) {
 }
 
 vector<string>* DatabaseController::GetAllUsers() {
-    string sqlQuery = "SELECT * FROM Users;";
+    string sqlQuery = "SELECT * FROM User;";
     vector<string>* dataVector = new vector<string>;
 
     char *errmsg;
@@ -47,7 +47,7 @@ vector<string>* DatabaseController::GetAllUsers() {
 }
 
 vector<string>* DatabaseController::GetUserByEmail(string email) {
-    string sqlQuery = "SELECT * FROM Users WHERE Email = '" + email + "';";
+    string sqlQuery = "SELECT * FROM User WHERE Email = '" + email + "';";
     vector<string>* dataVector = new vector<string>;
 
     char *errmsg;
@@ -57,7 +57,7 @@ vector<string>* DatabaseController::GetUserByEmail(string email) {
 }
 
 bool DatabaseController::CreateUser(string firstname, string lastname, string email, string password, int isAdmin) {
-    string sqlQuery = "INSERT INTO USERS (FirstName, LastName, Email, Password, isAdmin) VALUES ("
+    string sqlQuery = "INSERT INTO User (FirstName, LastName, Email, Password, isAdmin) VALUES ("
             + quotesql(firstname) + ","
             + quotesql(lastname) + ","
             + quotesql(email) + ","
@@ -73,7 +73,35 @@ bool DatabaseController::CreateUser(string firstname, string lastname, string em
     } else {
         return true;
     }
+}
 
+vector<string>* DatabaseController::GetAllDictionaries() {
+    string sqlQuery = "SELECT * FROM Dictionary;";
+    vector<string>* dataVector = new vector<string>;
+
+    char *errmsg;
+    sqlite3_exec(database, sqlQuery.c_str(), Callback, (void *) dataVector, &errmsg);
+
+    return dataVector;
+}
+
+bool DatabaseController::CreateDictionary(string dictionaryName, string createdOn, string createdBy) {
+    string sqlQuery = "INSERT INTO Dictionary (Name, CreatedOn, CreatedBy) VALUES ("
+            + quotesql(dictionaryName) + ","
+            + quotesql(createdOn) + ","
+            + quotesql(createdBy) + ");";
+    vector<string>* dataVector = new vector<string>;
+
+    std::cout << sqlQuery << std::endl;
+
+    char *errmsg;
+    int returnCode =sqlite3_exec(database, sqlQuery.c_str(), Callback, (void *) dataVector, &errmsg);
+
+    if (returnCode != SQLITE_OK) {
+        return false;
+    } else {
+        return true;
+    }
 }
 
 void DatabaseController::SetDbFilePath(char *dbFilePath) {

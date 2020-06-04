@@ -151,6 +151,9 @@ void MainWindow::sendMessage(QTcpSocket* socket, const QString& incoming)
                 //Testing
                 User user = dataController->GetUserByEmail("test@nbu.com");
                 std::cout << user.firstName.toStdString() << std::endl;
+
+                dataController->CreateDictionary("German", "06.05.2020", "Kaloyan Yanev");
+
             }
 
             QByteArray block;
@@ -186,6 +189,7 @@ void MainWindow::displayMessage(const QString& str)
 
 
 //methods used to serialize and deserialize Structure objects
+//USER
 QDataStream & operator << (QDataStream &stream, const User &_class)
 {
     stream << static_cast<qint32>(_class.isAdmin) << _class.firstName << _class.lastName << _class.email << _class.password;
@@ -198,4 +202,15 @@ QDataStream & operator >> (QDataStream &stream, User &_class)
     stream >> tempInt; _class.isAdmin=tempInt;
 
     return stream >> _class.firstName >> _class.lastName >> _class.email >> _class.password;
+}
+
+//DICTIONARY
+QDataStream & operator <<(QDataStream &stream, const Dictionary &_class) {
+    stream << _class.name << _class.createdBy << _class.createdOn;
+    return  stream;
+}
+
+QDataStream & operator >> (QDataStream &stream, Dictionary &_class)
+{
+    return stream >> _class.name >> _class.createdBy >> _class.createdOn;
 }

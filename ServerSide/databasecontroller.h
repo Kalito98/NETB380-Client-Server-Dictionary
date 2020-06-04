@@ -18,6 +18,8 @@ public:
     vector<string>* GetAllUsers();
     vector<string>* GetUserByEmail(string email);
     bool CreateUser(string firstname, string lastname, string email, string password, int isAdmin);
+    vector<string>* GetAllDictionaries();
+    bool CreateDictionary(string dictionaryName, string createdOn, string createdBy);
 
 private:
     sqlite3 *database;

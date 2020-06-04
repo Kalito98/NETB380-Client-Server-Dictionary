@@ -15,6 +15,8 @@ public:
     vector<User> GetAllUsers();
     User GetUserByEmail(string email);
     bool CreateUser(string firstname, string lastname, string email, string password, int isAdmin);
+    vector<Dictionary> GetAllDictionaries();
+    bool CreateDictionary(string dictionaryName, string createdOn, string createdBy);
 
 private:
     DatabaseController* databaseController;

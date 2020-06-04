@@ -9,14 +9,15 @@ vector<User> DataController::GetAllUsers() {
     vector<string>* dataVector = databaseController->GetAllUsers();
     vector<User> usersObjectVector;
 
-    int usersCount = dataVector->size() / 5;
+    int fields = 5;
+    int usersCount = dataVector->size() / fields;
 
     for (int i = 0; i < usersCount; i++) {
-        string firstName = dataVector->at(0 + (5 * i));
-        string lastName = dataVector->at(1 + (5 * i));
-        string email = dataVector->at( 2 + (5 * i));
-        string password = dataVector->at(3 + (5 * i));
-        int isAdmin = stoi(dataVector->at(4 + (5 * i)));
+        string firstName = dataVector->at(0 + (fields * i));
+        string lastName = dataVector->at(1 + (fields * i));
+        string email = dataVector->at( 2 + (fields * i));
+        string password = dataVector->at(3 + (fields * i));
+        int isAdmin = stoi(dataVector->at(4 + (fields * i)));
 
         User user;
         user.firstName = QString::fromStdString(firstName);
@@ -52,4 +53,31 @@ User DataController::GetUserByEmail(string email) {
 
 bool DataController::CreateUser(string firstname, string lastname, string email, string password, int isAdmin) {
     return databaseController->CreateUser(firstname, lastname, email, password, isAdmin);
+}
+
+vector<Dictionary> DataController::GetAllDictionaries(){
+    vector<string>* dataVector = databaseController->GetAllDictionaries();
+    vector<Dictionary> dictionariesObjectVector;
+
+    int fields = 3;
+    int dictionariesCount = dataVector->size() / fields;
+
+    for (int i = 0; i < dictionariesCount; i++) {
+        string name = dataVector->at(0 + (fields * i));
+        string createdOn = dataVector->at(1 + (fields * i));
+        string createdBy = dataVector->at(2 + (fields * i));
+
+        Dictionary dictionary;
+        dictionary.name = QString::fromStdString(name);
+        dictionary.createdOn = QString::fromStdString(createdOn);
+        dictionary.createdBy = QString::fromStdString(createdBy);
+
+        dictionariesObjectVector.push_back(dictionary);
+    }
+
+    return dictionariesObjectVector;
+}
+
+bool DataController::CreateDictionary(string dictionaryName, string createdOn, string createdBy) {
+    return databaseController->CreateDictionary(dictionaryName, createdOn, createdBy);
 }

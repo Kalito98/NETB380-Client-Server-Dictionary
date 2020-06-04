@@ -13,4 +13,11 @@ struct User {
     int isAdmin;
 };
 
+struct Dictionary {
+    public:
+    QString name;
+    QString createdOn;
+    QString createdBy;
+};
+
 #endif // STUCTURES_H
