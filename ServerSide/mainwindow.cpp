@@ -1,5 +1,14 @@
+#include <vector>
+#include <QVector>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+
+template<class T>
+T get(QDataStream &stream) {
+    T value;
+    stream >> value;
+    return value;
+}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -8,6 +17,11 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     m_server = new QTcpServer();
+
+    databaseController = new DatabaseController("../dictionary_database.db");
+    databaseController->Connect();
+
+    dataController = new DataController(databaseController);
 
     if(m_server->listen(QHostAddress::Any, 1234))
     {
@@ -59,7 +73,6 @@ void MainWindow::appendNewSocket(QTcpSocket* socket)
     // connect signal, which will be emitted each time there is new data in the socket waiting to be read
     connect(socket, SIGNAL(readyRead()), this , SLOT(readSocket()));
     connect(socket, SIGNAL(disconnected()), this , SLOT(discardSocket()));
-    this->ui->comboBox_receiver->addItem(QString::number(socket->socketDescriptor()));
     // this is just for testing purposes, so we can track if we correctly identify different
     // clients trying to connect to our server
     displayMessage(QString("INFO::Client with sockd:%1 has just entered the room").arg(socket->socketDescriptor()));
@@ -84,7 +97,7 @@ void MainWindow::readSocket()
         QString receiveString;
         in >> receiveString;
         // display the data that we have received
-        receiveString.prepend(QString("%1 :: ").arg(socket->socketDescriptor()));
+       // receiveString.prepend(QString("%1 :: ").arg(socket->socketDescriptor()));
 
         // emit newMessage signal and pass our interpreted message
         emit newMessage(receiveString);
@@ -109,40 +122,8 @@ void MainWindow::discardSocket()
     socket->deleteLater();
 }
 
-// send message when button is clicked
-void MainWindow::on_pushButton_sendMessage_clicked()
-{
-    // here we check which is the receiver
-    // and then we call on sendMessage and delete content from the UI
-    // pretty sure when we change the implementation we dont need
-    // both these if's, just need to directly call sendMessage and pass to it the
-    // socket that we should be sending data to
-    QString receiver = this->ui->comboBox_receiver->currentText();
-
-    if(receiver=="Broadcast")
-    {
-        foreach (QTcpSocket* socket,socket_list)
-        {
-            sendMessage(socket);
-        }
-    }
-    else
-    {
-        foreach (QTcpSocket* socket,socket_list)
-        {
-            if(socket->socketDescriptor() == receiver.toLongLong())
-            {
-                sendMessage(socket);
-                break;
-            }
-        }
-    }
-    this->ui->lineEdit_message->clear();
-}
-
-
 // function that sends message through socket
-void MainWindow::sendMessage(QTcpSocket* socket)
+void MainWindow::sendMessage(QTcpSocket* socket, const QString& incoming)
 {
     if(socket)
     {
@@ -150,14 +131,38 @@ void MainWindow::sendMessage(QTcpSocket* socket)
         {
             // here instead of getting message from UI
             // we should generate our own QString
-            QString str = this->ui->lineEdit_message->text();
+            QString str = "Hello";
+            QVector<User> usersQVector;
+
+            int x = QString::compare(str, incoming, Qt::CaseInsensitive);
+            if (x == 0) {
+               str = "Hi";
+            }
+
+            str = "GetAllUsers";
+            x = QString::compare(str, incoming, Qt::CaseInsensitive);
+            if (x == 0) {
+                //Get all users in a Stucture User Vector.
+                vector<User> usersVector = dataController->GetAllUsers();
+                //Convert the stdVector to QVector using build in methods.
+                usersQVector = QVector<User>::fromStdVector(usersVector);
+
+
+                //Testing
+                User user = dataController->GetUserByEmail("test@nbu.com");
+                std::cout << user.firstName.toStdString() << std::endl;
+
+                dataController->CreateDictionary("German", "06.05.2020", "Kaloyan Yanev");
+
+            }
 
             QByteArray block;
             QDataStream out(&block, QIODevice::WriteOnly);
 
             // serialize our QString
             out.setVersion(QDataStream::Qt_5_12);
-            out << str;
+            // serialize directly the QVector thanks to the aditional serlization methods
+            out << usersQVector;
             // write inside the socket
             socket->write(block);
         }
@@ -175,5 +180,37 @@ void MainWindow::sendMessage(QTcpSocket* socket)
 void MainWindow::displayMessage(const QString& str)
 {
     this->ui->textBrowser_receivedMessages->append(str);
+
+    foreach (QTcpSocket* socket,socket_list)
+    {
+        sendMessage(socket, str);
+    }
 }
 
+
+//methods used to serialize and deserialize Structure objects
+//USER
+QDataStream & operator << (QDataStream &stream, const User &_class)
+{
+    stream << static_cast<qint32>(_class.isAdmin) << _class.firstName << _class.lastName << _class.email << _class.password;
+    return stream;
+}
+
+QDataStream & operator >> (QDataStream &stream, User &_class)
+{
+    qint32 tempInt;
+    stream >> tempInt; _class.isAdmin=tempInt;
+
+    return stream >> _class.firstName >> _class.lastName >> _class.email >> _class.password;
+}
+
+//DICTIONARY
+QDataStream & operator <<(QDataStream &stream, const Dictionary &_class) {
+    stream << _class.name << _class.createdBy << _class.createdOn;
+    return  stream;
+}
+
+QDataStream & operator >> (QDataStream &stream, Dictionary &_class)
+{
+    return stream >> _class.name >> _class.createdBy >> _class.createdOn;
+}

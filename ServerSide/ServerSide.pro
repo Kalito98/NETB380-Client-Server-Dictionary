@@ -18,11 +18,21 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+    databasecontroller.cpp \
+    datacontroller.cpp \
+    libraries/sqlite3/sqlite3.c \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    user.cpp
 
 HEADERS += \
-    mainwindow.h
+    databasecontroller.h \
+    datacontroller.h \
+    libraries/sqlite3/sqlite3.h \
+    libraries/sqlite3/sqlite3ext.h \
+    mainwindow.h \
+    structures.h \
+    user.h
 
 FORMS += \
     mainwindow.ui
