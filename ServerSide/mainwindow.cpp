@@ -129,40 +129,43 @@ void MainWindow::sendMessage(QTcpSocket* socket, const QString& incoming)
     {
         if(socket->isOpen())
         {
-            // here instead of getting message from UI
-            // we should generate our own QString
-            QString str = "Hello";
-            QVector<User> usersQVector;
-
-            int x = QString::compare(str, incoming, Qt::CaseInsensitive);
-            if (x == 0) {
-               str = "Hi";
-            }
-
-            str = "GetAllUsers";
-            x = QString::compare(str, incoming, Qt::CaseInsensitive);
-            if (x == 0) {
-                //Get all users in a Stucture User Vector.
-                vector<User> usersVector = dataController->GetAllUsers();
-                //Convert the stdVector to QVector using build in methods.
-                usersQVector = QVector<User>::fromStdVector(usersVector);
-
-
-                //Testing
-                User user = dataController->GetUserByEmail("test@nbu.com");
-                std::cout << user.firstName.toStdString() << std::endl;
-
-                dataController->CreateDictionary("German", "06.05.2020", "Kaloyan Yanev");
-
-            }
 
             QByteArray block;
             QDataStream out(&block, QIODevice::WriteOnly);
 
             // serialize our QString
             out.setVersion(QDataStream::Qt_5_12);
-            // serialize directly the QVector thanks to the aditional serlization methods
-            out << usersQVector;
+            QVector<User> usersQVector;
+
+            QString getAllusers = "GetAllUsers";
+            QString GetUserByEmail = "GetUserByEmail";
+            QString CreateUser = "CreateUser";
+            QString GetAllDictionaries = "GetAllDictionaries";
+            QString CreateDictionary = "CreateDictionary";
+
+            int getAllUsersQuery = QString::compare(getAllusers, incoming, Qt::CaseInsensitive);
+            int getUserByEmailQuery = QString::compare(GetUserByEmail, incoming, Qt::CaseInsensitive);
+            int createUserQuery = QString::compare(CreateUser, incoming, Qt::CaseInsensitive);
+            int getAllDictionariesQuery = QString::compare(GetAllDictionaries, incoming, Qt::CaseInsensitive);
+            int createDictionaryQuery = QString::compare(CreateDictionary, incoming, Qt::CaseInsensitive);
+
+            if (getAllUsersQuery == 0) {
+                //Get all users in a Stucture User Vector.
+                vector<User> usersVector = dataController->GetAllUsers();
+                //Convert the stdVector to QVector using build in methods.
+                usersQVector = QVector<User>::fromStdVector(usersVector);
+                // serialize directly the QVector thanks to the aditional serlization methods
+                out << usersQVector;
+            } else if (getUserByEmailQuery == 0) {
+
+            } else if (createUserQuery == 0) {
+
+            } else if (getAllDictionariesQuery == 0) {
+
+            } else if (createDictionaryQuery == 0) {
+
+            }
+
             // write inside the socket
             socket->write(block);
         }
