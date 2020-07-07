@@ -1,5 +1,8 @@
 #include <vector>
 #include <QVector>
+#include <sstream>
+#include <iostream>
+#include <cstdlib>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -96,6 +99,8 @@ void MainWindow::readSocket()
         // read all data that we have received
         QString receiveString;
         in >> receiveString;
+        std::cout << receiveString.toStdString() << std::endl;
+
         // display the data that we have received
        // receiveString.prepend(QString("%1 :: ").arg(socket->socketDescriptor()));
 
@@ -129,40 +134,102 @@ void MainWindow::sendMessage(QTcpSocket* socket, const QString& incoming)
     {
         if(socket->isOpen())
         {
-            // here instead of getting message from UI
-            // we should generate our own QString
-            QString str = "Hello";
-            QVector<User> usersQVector;
+            //split the incoming command
+            string str = incoming.toUtf8().constData();
+            std::cout << str << std::endl;
 
-            int x = QString::compare(str, incoming, Qt::CaseInsensitive);
-            if (x == 0) {
-               str = "Hi";
-            }
+            std::replace(str.begin(), str.end(), ',', ' ');
 
-            str = "GetAllUsers";
-            x = QString::compare(str, incoming, Qt::CaseInsensitive);
-            if (x == 0) {
-                //Get all users in a Stucture User Vector.
-                vector<User> usersVector = dataController->GetAllUsers();
-                //Convert the stdVector to QVector using build in methods.
-                usersQVector = QVector<User>::fromStdVector(usersVector);
+            vector<string> array;
+            stringstream ss(str);
+            string temp;
+            while (ss >> temp)
+                array.push_back(temp);
 
-
-                //Testing
-                User user = dataController->GetUserByEmail("test@nbu.com");
-                std::cout << user.firstName.toStdString() << std::endl;
-
-                dataController->CreateDictionary("German", "06.05.2020", "Kaloyan Yanev");
-
-            }
+            QString command = QString::fromStdString(array.at(0));
 
             QByteArray block;
             QDataStream out(&block, QIODevice::WriteOnly);
 
             // serialize our QString
             out.setVersion(QDataStream::Qt_5_12);
-            // serialize directly the QVector thanks to the aditional serlization methods
-            out << usersQVector;
+
+            QString getAllusers = "GetAllUsers";
+            QString GetUserByEmail = "GetUserByEmail";
+            QString CreateUser = "CreateUser";
+            QString GetAllDictionaries = "GetAllDictionaries";
+            QString CreateDictionary = "CreateDictionary";
+            QString GetAllItemsByDictionary = "GetAllItemsByDictionary";
+
+            int getAllUsersQuery = QString::compare(getAllusers, command, Qt::CaseInsensitive);
+            int getUserByEmailQuery = QString::compare(GetUserByEmail, command, Qt::CaseInsensitive);
+            int createUserQuery = QString::compare(CreateUser, command, Qt::CaseInsensitive);
+            int getAllDictionariesQuery = QString::compare(GetAllDictionaries, command, Qt::CaseInsensitive);
+            int createDictionaryQuery = QString::compare(CreateDictionary, command, Qt::CaseInsensitive);
+            int getAllItemsByDictionaryQuery = QString::compare(GetAllItemsByDictionary, command, Qt::CaseInsensitive);
+
+            if (getAllUsersQuery == 0) {
+                QVector<User> usersQVector;
+                //Get all users in a Stucture User Vector.
+                vector<User> usersVector = dataController->GetAllUsers();
+                //Convert the stdVector to QVector using build in methods.
+                usersQVector = QVector<User>::fromStdVector(usersVector);
+                // serialize directly the QVector thanks to the aditional serlization methods
+                out << usersQVector;
+            } else if (getUserByEmailQuery == 0) {
+                string email = array.at(1);
+
+                 QVector<User> usersQVector;
+                 vector<User> usersVector = dataController->GetUserByEmail(email);
+                 usersQVector = QVector<User>::fromStdVector(usersVector);
+
+                 std::cout << usersQVector.at(0).firstName.toStdString() << std::endl;
+
+                 out << usersQVector;
+
+            } else if (createUserQuery == 0) {
+                string firstname = array.at(1);
+                string lastname = array.at(2);
+                string email = array.at(3);
+                string password = array.at(4);
+                int isAdmin = stoi(array.at(5));
+
+                bool isSuccessful = dataController->CreateUser(firstname, lastname, email, password, isAdmin);
+
+                if(isSuccessful) {
+                    out << QString::fromStdString("true");
+                } else {
+                    out << QString::fromStdString("false");
+                }
+            } else if (getAllDictionariesQuery == 0) {
+                QVector<Dictionary> dictionaryQVector;
+                vector<Dictionary> dictionaryVector = dataController->GetAllDictionaries();
+                dictionaryQVector = QVector<Dictionary>::fromStdVector(dictionaryVector);
+
+                out << dictionaryQVector;
+
+            } else if (createDictionaryQuery == 0) {
+                string dictionaryName = array.at(1);
+                string createdOn = array.at(2);
+                string createdBy = array.at(3);
+
+                bool isSuccessful = dataController->CreateDictionary(dictionaryName, createdOn, createdBy);
+
+                if(isSuccessful) {
+                    out << QString::fromStdString("true");
+                } else {
+                    out << QString::fromStdString("false");
+                }
+            } else if (getAllItemsByDictionaryQuery == 0) {
+                string dictionaryName = array.at(1);
+
+                QVector<DictionaryItem> itemQVector;
+                vector<DictionaryItem> itemVector = dataController->GetAllItemsByDictionary(dictionaryName);
+                itemQVector = QVector<DictionaryItem>::fromStdVector(itemVector);
+
+                out << itemQVector;
+            }
+
             // write inside the socket
             socket->write(block);
         }
@@ -213,4 +280,15 @@ QDataStream & operator <<(QDataStream &stream, const Dictionary &_class) {
 QDataStream & operator >> (QDataStream &stream, Dictionary &_class)
 {
     return stream >> _class.name >> _class.createdBy >> _class.createdOn;
+}
+
+//DICTIONARY ITEM
+QDataStream & operator <<(QDataStream &stream, const DictionaryItem &_class) {
+    stream << _class.id << _class.word << _class.description << _class.createdOn << _class.createdBy;
+    return  stream;
+}
+
+QDataStream & operator >> (QDataStream &stream, DictionaryItem &_class)
+{
+    return stream >> _class.id >> _class.word >> _class.description >> _class.createdOn >> _class.createdBy;
 }

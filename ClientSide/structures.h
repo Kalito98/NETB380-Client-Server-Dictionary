@@ -20,4 +20,13 @@ struct Dictionary {
     QString createdBy;
 };
 
+struct DictionaryItem {
+public:
+    QString id;
+    QString word;
+    QString description;
+    QString createdOn;
+    QString createdBy;
+};
+
 #endif // STUCTURES_H
