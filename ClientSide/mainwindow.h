@@ -10,6 +10,7 @@
 #include <QString>
 #include <QTcpSocket>
 #include "structures.h"
+#include "clientrequester.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -20,23 +21,23 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    MainWindow(QString d, QWidget *parent = nullptr);
     ~MainWindow();
 
-    //methods used to serialize and deserialize Structure objects
-    friend QDataStream & operator << (QDataStream &stream, const User & _class);
-    friend QDataStream & operator >> (QDataStream &stream, const User & _class);
-signals:
-    void newMessage(QString);
+    void on_pushButton_addWord_clicked();
+    void on_pushButton_searchWord_clicked();
+
 private slots:
-    void readSocket();
-    void discardSocket();
+    void on_pushButton_clicked();
 
-    void displayMessage(const QString& str);
-    void on_pushButton_sendMessage_clicked();
 private:
-    Ui::MainWindow *ui;
+    void delay();
 
-    QTcpSocket* socket;
+    Ui::MainWindow *ui;
+    QString dictionary;
+    QVector<DictionaryItem> itemsQVector;
+    clientrequester *crequester;
+
+
 };
 #endif // MAINWINDOW_H

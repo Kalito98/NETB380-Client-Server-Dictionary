@@ -32,8 +32,9 @@ vector<User> DataController::GetAllUsers() {
     return usersObjectVector;
 }
 
-User DataController::GetUserByEmail(string email) {
+vector<User> DataController::GetUserByEmail(string email) {
     vector<string>* dataVector = databaseController->GetUserByEmail(email);
+    vector<User> usersObjectVector;
 
     string firstName = dataVector->at(0);
     string lastName = dataVector->at(1);
@@ -48,7 +49,11 @@ User DataController::GetUserByEmail(string email) {
     user.password = QString::fromStdString(password);
     user.isAdmin = isAdmin;
 
-    return user;
+    std::cout << lastName << std::endl;
+
+    usersObjectVector.push_back(user);
+
+    return usersObjectVector;
 }
 
 bool DataController::CreateUser(string firstname, string lastname, string email, string password, int isAdmin) {
@@ -80,4 +85,31 @@ vector<Dictionary> DataController::GetAllDictionaries(){
 
 bool DataController::CreateDictionary(string dictionaryName, string createdOn, string createdBy) {
     return databaseController->CreateDictionary(dictionaryName, createdOn, createdBy);
+}
+
+vector<DictionaryItem> DataController::GetAllItemsByDictionary(string dictionary) {
+    vector<string>* dataVector = databaseController->GetAllItemsByDictionary(dictionary);
+    vector<DictionaryItem> itemsObjectVector;
+
+    int fields = 5;
+    int itemsCount = dataVector->size() / fields;
+
+    for (int i = 0; i < itemsCount; i++) {
+        string id = dataVector->at(0 + (fields * i));
+        string word = dataVector->at(1 + (fields * i));
+        string description = dataVector->at(2 + (fields * i));
+        string createdOn = dataVector->at(3 + (fields * i));
+        string createdBy = dataVector->at(4 + (fields * i));
+
+        DictionaryItem item;
+        item.id = QString::fromStdString(id);
+        item.word = QString::fromStdString(word);
+        item.description = QString::fromStdString(description);
+        item.createdOn = QString::fromStdString(createdOn);
+        item.createdBy = QString::fromStdString(createdBy);
+
+        itemsObjectVector.push_back(item);
+    }
+
+    return itemsObjectVector;
 }

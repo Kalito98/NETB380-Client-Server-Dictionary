@@ -20,6 +20,8 @@ public:
     bool CreateUser(string firstname, string lastname, string email, string password, int isAdmin);
     vector<string>* GetAllDictionaries();
     bool CreateDictionary(string dictionaryName, string createdOn, string createdBy);
+    vector<string>* GetAllItemsByDictionary(string dictionary);
+    bool CreateDictionaryItem(string dictionaryName, string word, string description, string createdOn, string createdBy);
 
 private:
     sqlite3 *database;

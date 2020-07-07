@@ -92,7 +92,39 @@ bool DatabaseController::CreateDictionary(string dictionaryName, string createdO
             + quotesql(createdBy) + ");";
     vector<string>* dataVector = new vector<string>;
 
-    std::cout << sqlQuery << std::endl;
+    char *errmsg;
+    int returnCode =sqlite3_exec(database, sqlQuery.c_str(), Callback, (void *) dataVector, &errmsg);
+
+    if (returnCode != SQLITE_OK) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+vector<string>* DatabaseController::GetAllItemsByDictionary(string dictionary) {
+    string sqlQuery = "SELECT i.ID, i.Word, i.Description, i.CreatedOn, i.CreatedBy "
+                      "FROM Item as i, Dictionary  as d, DictionaryItem as di "
+                      "WHERE di.DictionaryKey = " + quotesql(dictionary)
+            + " AND di.ItemKey = i.id AND di.DictionaryKey = d.Name;";
+
+    vector<string>* dataVector = new vector<string>;
+
+    char *errmsg;
+    sqlite3_exec(database, sqlQuery.c_str(), Callback, (void *) dataVector, &errmsg);
+
+    return dataVector;
+}
+
+
+//NOT READY
+bool DatabaseController::CreateDictionaryItem(string dictionaryName, string word, string description, string createdOn, string createdBy) {
+    string sqlQuery = "INSERT INTO Item (Word, Description, CreatedOn, CreatedBy) VALUES ("
+            + quotesql(word) + ","
+            + quotesql(description) + ","
+            + quotesql(createdOn) + ","
+            + quotesql(createdBy) + ");";
+    vector<string>* dataVector = new vector<string>;
 
     char *errmsg;
     int returnCode =sqlite3_exec(database, sqlQuery.c_str(), Callback, (void *) dataVector, &errmsg);

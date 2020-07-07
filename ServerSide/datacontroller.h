@@ -13,10 +13,11 @@ public:
     DataController(DatabaseController* databaseController);
 
     vector<User> GetAllUsers();
-    User GetUserByEmail(string email);
+    vector<User> GetUserByEmail(string email);
     bool CreateUser(string firstname, string lastname, string email, string password, int isAdmin);
     vector<Dictionary> GetAllDictionaries();
     bool CreateDictionary(string dictionaryName, string createdOn, string createdBy);
+    vector<DictionaryItem> GetAllItemsByDictionary(string dictionary);
 
 private:
     DatabaseController* databaseController;

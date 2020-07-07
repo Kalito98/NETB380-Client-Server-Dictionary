@@ -1,5 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QTime>
+#include <iostream>
+
 
 template<class T>
 T get(QDataStream &stream) {
@@ -8,108 +11,48 @@ T get(QDataStream &stream) {
     return value;
 }
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(QString d, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    crequester = new clientrequester(this);
+
+    dictionary = d;
     ui->setupUi(this);
-
-    socket = new QTcpSocket(this);
-
-    connect(this,SIGNAL(newMessage(QString)),this,SLOT(displayMessage(QString)));
-    connect(socket,SIGNAL(readyRead()),this,SLOT(readSocket()));
-    connect(socket,SIGNAL(disconnected()),this,SLOT(discardSocket()));
-    socket->connectToHost(QHostAddress::LocalHost,1234);
-    if(socket->waitForConnected())
-        this->ui->statusBar->showMessage("Connected to Server");
-    else{
-        QMessageBox::critical(this,"QTCPClient", QString("The following error occurred: %1.").arg(socket->errorString()));
-        exit(EXIT_FAILURE);
-    }
 }
 
 MainWindow::~MainWindow()
 {
-    if(socket->isOpen())
-        socket->close();
     delete ui;
 }
 
-void MainWindow::readSocket()
+
+void MainWindow::on_pushButton_addWord_clicked()
 {
-    QByteArray block = socket->readAll();
 
-    QDataStream in(&block, QIODevice::ReadOnly);
-    in.setVersion(QDataStream::Qt_5_12);
+}
 
-    while (!in.atEnd())
-    {
-        //TODO. Example: After requesting for AllUsers from the server it should expect as next response a QVector of users from the server. This applies for all requests
-        QString receiveString;
-        QVector<User> usersQVector;
-        in >> usersQVector;
-        // receiveString.prepend(QString("%1 :: ").arg(socket->socketDescriptor()));
-        // iterate over the result if the length is bigger than 0
-        if(usersQVector.length() != 0) {
-            for(User user : usersQVector){
-                emit newMessage(user.firstName);
-                emit newMessage(user.lastName);
-                emit newMessage(user.email);
-                emit newMessage(user.password);
-            }
-        }
+void MainWindow::on_pushButton_searchWord_clicked()
+{
+
+}
+
+void MainWindow::delay() {
+    QTime dieTime= QTime::currentTime().addSecs(1);
+    while (QTime::currentTime() < dieTime)
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+}
+
+
+void MainWindow::on_pushButton_clicked()
+{
+    crequester->onSendMessage(QString::fromStdString("GetAllItemsByDictionary," + dictionary.toStdString()), "GetAllItemsByDictionary");
+    delay();
+
+    itemsQVector = crequester->globalItem;
+
+    for(DictionaryItem item : itemsQVector) {
+        //E TUKA xD
+        std::cout << item.description.toStdString() << std::endl;
     }
-}
-
-void MainWindow::discardSocket()
-{
-    socket->deleteLater();
-    socket=nullptr;
-
-    this->ui->statusBar->showMessage("Disconnected!");
-}
-
-void MainWindow::on_pushButton_sendMessage_clicked()
-{
-    if(socket)
-    {
-        if(socket->isOpen())
-        {
-            QString str = this->ui->lineEdit_message->text();
-
-            QByteArray block;
-            QDataStream out(&block, QIODevice::WriteOnly);
-
-            out.setVersion(QDataStream::Qt_5_12);
-            out << str;
-
-            socket->write(block);
-
-            this->ui->lineEdit_message->clear();
-        }
-        else
-            QMessageBox::critical(this,"QTCPClient","Socket doesn't seem to be opened");
-    }
-    else
-        QMessageBox::critical(this,"QTCPClient","Not connected");
-}
-
-void MainWindow::displayMessage(const QString& str)
-{
-    this->ui->textBrowser_receivedMessages->append(str);
-}
-
-//methods used to serialize and deserialize Structure objects
-QDataStream & operator << (QDataStream &stream, const User &_class)
-{
-    stream << static_cast<qint32>(_class.isAdmin) << _class.firstName << _class.lastName << _class.email << _class.password;
-    return stream;
-}
-
-QDataStream & operator >> (QDataStream &stream, User &_class)
-{
-    qint32 tempInt;
-    stream >> tempInt; _class.isAdmin=tempInt;
-
-    return stream >> _class.firstName >> _class.lastName >> _class.email >> _class.password;
 }

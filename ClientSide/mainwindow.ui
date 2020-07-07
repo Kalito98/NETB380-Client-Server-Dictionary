@@ -14,17 +14,10 @@
    <string>QTCPClient</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color: rgba(37, 37, 37, 179);</string>
+   <string notr="true">background-color: rgba(245, 245, 245, 179);</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0" rowspan="2" colspan="3">
-     <widget class="QTextBrowser" name="textBrowser_receivedMessages">
-      <property name="styleSheet">
-       <string notr="true">background-color: rgb(255, 255, 255);</string>
-      </property>
-     </widget>
-    </item>
     <item row="2" column="0">
      <widget class="QLineEdit" name="lineEdit_message">
       <property name="styleSheet">
@@ -34,10 +27,38 @@ border-style: solid;
 border-color: rgb(69, 70, 70);
 border-radius: 10px;</string>
       </property>
+      <property name="text">
+       <string/>
+      </property>
      </widget>
     </item>
-    <item row="2" column="1">
-     <widget class="QPushButton" name="pushButton_sendMessage">
+    <item row="3" column="0">
+     <widget class="QLineEdit" name="lineEdit_search">
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;background-color: rgb(255, 255, 255);&lt;/p&gt;&lt;p&gt;border-width: 2px;&lt;/p&gt;&lt;p&gt;border-style: solid;&lt;/p&gt;&lt;p&gt;border-color: rgb(69, 70, 70);&lt;/p&gt;&lt;p&gt;border-radius: 10px;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(255, 255, 255);
+border-width: 2px;
+border-style: solid;
+border-color: rgb(69, 70, 70);
+border-radius: 10px;
+</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="0" colspan="3">
+     <widget class="QTextBrowser" name="textBrowser_receivedMessages">
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(255, 255, 255);</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="2">
+     <widget class="QPushButton" name="pushButton_searchWord">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
       <property name="styleSheet">
        <string notr="true">background-color: rgb(31, 178, 255);
 color:white;
@@ -49,7 +70,31 @@ padding: 5px;
 </string>
       </property>
       <property name="text">
-       <string>Send</string>
+       <string>Search</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="2">
+     <widget class="QPushButton" name="pushButton_addWord">
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(31, 178, 255);
+color:white;
+border-width: 2px;
+border-style: solid;
+border-color: rgb(43, 162, 255);
+border-radius: 10px;
+padding: 5px;
+</string>
+      </property>
+      <property name="text">
+       <string>Add</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QPushButton" name="pushButton">
+      <property name="text">
+       <string>Add2</string>
       </property>
      </widget>
     </item>
