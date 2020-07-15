@@ -6,12 +6,17 @@
 #include "structures.h"
 #include <iostream>
 
-Login::Login(QWidget *parent) :
+Login::Login(QVector<Dictionary> dictionaryQV, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::Login)
 {
     ui->setupUi(this);
+    dictionaryQVector = dictionaryQV;
     crequester = new clientrequester(this);
+
+    for(Dictionary dic : dictionaryQVector) {
+        ui->comboBox->addItem(dic.name);
+    }
 }
 
 
@@ -34,6 +39,7 @@ void Login::on_pushButton_login_clicked()
     if (pass==userObject.password){
 
         QMessageBox::information(this,"Login","Login successful!");
+        crequester->~clientrequester();
         this->hide();
             dict = new MainWindow(ui->comboBox->currentText());
             dict->show();
@@ -51,14 +57,4 @@ void Login::delay() {
 }
 
 
-void Login::on_lineEdit_user_selectionChanged()
-{
-    crequester->onSendMessage(QString::fromStdString("GetAllDictionaries"), "GetAllDictionaries");
 
-    if(ui->comboBox->count() == 0) {
-    QVector<Dictionary> dictionaryQVector = crequester->globalDictionary;
-    for(Dictionary d : dictionaryQVector) {
-       ui->comboBox->addItem(d.name);
-    }
-    }
-}

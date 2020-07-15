@@ -18,6 +18,7 @@ public:
     vector<Dictionary> GetAllDictionaries();
     bool CreateDictionary(string dictionaryName, string createdOn, string createdBy);
     vector<DictionaryItem> GetAllItemsByDictionary(string dictionary);
+    bool CreateDictionaryItem(string dictionaryName, string word, string description, string createdOn, string createdBy);
 
 private:
     DatabaseController* databaseController;

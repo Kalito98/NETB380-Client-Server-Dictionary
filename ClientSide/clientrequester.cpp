@@ -18,7 +18,7 @@ clientrequester::clientrequester(QWidget *parent)
     connect(socket,SIGNAL(disconnected()),this,SLOT(discardSocket()));
     socket->connectToHost(QHostAddress::LocalHost,1234);
     if(socket->waitForConnected())
-        QMessageBox::critical(this,"QTCPClient", QString("Connected to Server"));
+        QMessageBox::information(this,"QTCPClient", QString("Connected to Server"));
     else{
         QMessageBox::critical(this,"QTCPClient", QString("The following error occurred: %1.").arg(socket->errorString()));
         exit(EXIT_FAILURE);
@@ -39,6 +39,7 @@ void clientrequester::readSocket()
     QString GetAllDictionaries = "GetAllDictionaries";
     QString CreateDictionary = "CreateDictionary";
     QString GetAllItemsByDictionary = "GetAllItemsByDictionary";
+    QString CreateDictionaryItem = "CreateDictionaryItem";
 
     QByteArray block = socket->readAll();
 
@@ -66,19 +67,12 @@ void clientrequester::readSocket()
             in >> itemQVector;
             globalItem = itemQVector;
         }
-        //QString receiveString;
-        //QVector<User> usersQVector;
-        //in >> usersQVector;
-        //// receiveString.prepend(QString("%1 :: ").arg(socket->socketDescriptor()));
-        //// iterate over the result if the length is bigger than 0
-        //if(usersQVector.length() != 0) {
-        //    for(User user : usersQVector){
-        //        emit newMessage(user.firstName);
-        //        emit newMessage(user.lastName);
-        //        emit newMessage(user.email);
-        //        emit newMessage(user.password);
-        //    }
-        //}
+        if(QString::compare(CreateDictionaryItem, command, Qt::CaseInsensitive) == 0) {
+            in >> isSuccessful;
+        }
+        if(QString::compare(CreateDictionary, command, Qt::CaseInsensitive) == 0) {
+            in >> isSuccessful;
+        }
     }
 }
 
@@ -99,7 +93,6 @@ void clientrequester::onSendMessage(QString message, QString c) {
 
             QByteArray block;
             QDataStream out(&block, QIODevice::WriteOnly);
-            std::cout << str.toStdString() << std::endl;
 
             out.setVersion(QDataStream::Qt_5_12);
             out << str;

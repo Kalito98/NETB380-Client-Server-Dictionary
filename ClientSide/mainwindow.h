@@ -24,17 +24,20 @@ public:
     MainWindow(QString d, QWidget *parent = nullptr);
     ~MainWindow();
 
+
+
+private slots:
     void on_pushButton_addWord_clicked();
     void on_pushButton_searchWord_clicked();
 
-private slots:
-    void on_pushButton_clicked();
+    void on_pushButton_ext_dict_clicked();
 
 private:
     void delay();
 
     Ui::MainWindow *ui;
     QString dictionary;
+    QString word;
     QVector<DictionaryItem> itemsQVector;
     clientrequester *crequester;
 

@@ -11,41 +11,21 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Form</string>
   </property>
   <widget class="QGroupBox" name="groupBox">
    <property name="geometry">
     <rect>
-     <x>100</x>
-     <y>80</y>
-     <width>201</width>
-     <height>121</height>
+     <x>90</x>
+     <y>70</y>
+     <width>211</width>
+     <height>151</height>
     </rect>
    </property>
    <property name="title">
     <string>Log In or Sign Up</string>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-     <spacer name="verticalSpacer">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>40</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item>
-     <widget class="QPushButton" name="LogIn">
-      <property name="text">
-       <string>Log In</string>
-      </property>
-     </widget>
-    </item>
     <item>
      <spacer name="verticalSpacer_2">
       <property name="orientation">
@@ -60,7 +40,41 @@
      </spacer>
     </item>
     <item>
+     <widget class="QPushButton" name="LogIn">
+      <property name="styleSheet">
+       <string notr="true">QPushButton{
+	padding:7px;
+	font:12px;
+}
+</string>
+      </property>
+      <property name="text">
+       <string>Log In</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <spacer name="verticalSpacer">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>40</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
      <widget class="QPushButton" name="SignUp">
+      <property name="styleSheet">
+       <string notr="true">QPushButton{
+	padding:7px;
+	font:12px;
+}
+</string>
+      </property>
       <property name="text">
        <string>Sign Up</string>
       </property>

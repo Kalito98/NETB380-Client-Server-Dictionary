@@ -65,6 +65,8 @@ bool DatabaseController::CreateUser(string firstname, string lastname, string em
             + std::to_string(isAdmin) + ");";
     vector<string>* dataVector = new vector<string>;
 
+    std::cout << sqlQuery << std::endl;
+
     char *errmsg;
     int returnCode = sqlite3_exec(database, sqlQuery.c_str(), Callback, (void *) dataVector, &errmsg);
 
@@ -92,6 +94,8 @@ bool DatabaseController::CreateDictionary(string dictionaryName, string createdO
             + quotesql(createdBy) + ");";
     vector<string>* dataVector = new vector<string>;
 
+    std::cout << sqlQuery << endl;
+
     char *errmsg;
     int returnCode =sqlite3_exec(database, sqlQuery.c_str(), Callback, (void *) dataVector, &errmsg);
 
@@ -117,7 +121,6 @@ vector<string>* DatabaseController::GetAllItemsByDictionary(string dictionary) {
 }
 
 
-//NOT READY
 bool DatabaseController::CreateDictionaryItem(string dictionaryName, string word, string description, string createdOn, string createdBy) {
     string sqlQuery = "INSERT INTO Item (Word, Description, CreatedOn, CreatedBy) VALUES ("
             + quotesql(word) + ","
@@ -131,13 +134,32 @@ bool DatabaseController::CreateDictionaryItem(string dictionaryName, string word
 
     if (returnCode != SQLITE_OK) {
         return false;
+    }
+
+    sqlQuery = "SELECT * FROM Item ORDER BY ID DESC LIMIT 1";
+
+    returnCode =sqlite3_exec(database, sqlQuery.c_str(), Callback, (void *) dataVector, &errmsg);
+
+    if (returnCode != SQLITE_OK) {
+        return false;
+    }
+
+    string id = dataVector->at(0);
+
+    sqlQuery = "Insert INTO DictionaryItem (DictionaryKey, ItemKey) VALUES ("
+            + quotesql(dictionaryName) + ","
+            + quotesql(id) + ");";
+
+    returnCode =sqlite3_exec(database, sqlQuery.c_str(), Callback, (void *) dataVector, &errmsg);
+
+    if (returnCode != SQLITE_OK) {
+        return false;
     } else {
         return true;
     }
 }
 
 void DatabaseController::SetDbFilePath(char *dbFilePath) {
-    //validation?
     this->dbFilePath = dbFilePath;
 }
 

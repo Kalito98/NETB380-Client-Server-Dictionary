@@ -29,6 +29,7 @@ vector<User> DataController::GetAllUsers() {
         usersObjectVector.push_back(user);
     }
 
+    delete dataVector;
     return usersObjectVector;
 }
 
@@ -53,6 +54,7 @@ vector<User> DataController::GetUserByEmail(string email) {
 
     usersObjectVector.push_back(user);
 
+    delete dataVector;
     return usersObjectVector;
 }
 
@@ -80,6 +82,7 @@ vector<Dictionary> DataController::GetAllDictionaries(){
         dictionariesObjectVector.push_back(dictionary);
     }
 
+    delete dataVector;
     return dictionariesObjectVector;
 }
 
@@ -111,5 +114,10 @@ vector<DictionaryItem> DataController::GetAllItemsByDictionary(string dictionary
         itemsObjectVector.push_back(item);
     }
 
+    delete dataVector;
     return itemsObjectVector;
+}
+
+bool DataController::CreateDictionaryItem(string dictionaryName, string word, string description, string createdOn, string createdBy) {
+    return databaseController->CreateDictionaryItem(dictionaryName, word, description, createdOn, createdBy);
 }
