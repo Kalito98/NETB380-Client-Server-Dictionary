@@ -22,11 +22,14 @@ private slots:
     void on_LogIn_clicked();
 
     void on_SignUp_clicked();
+    void delay();
 
 private:
     Ui::Form *ui;
     Login *login;
     Signup *signup;
+    clientrequester *crequester;
+
 
 };
 
