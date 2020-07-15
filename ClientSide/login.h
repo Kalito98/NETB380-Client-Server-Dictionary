@@ -23,6 +23,8 @@ private slots:
 
     void on_lineEdit_user_selectionChanged();
 
+    //void on_comboBox_activated(const QString &arg1);
+
 private:
     Ui::Login *ui;
     MainWindow *dict;

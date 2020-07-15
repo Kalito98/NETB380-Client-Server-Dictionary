@@ -22,8 +22,7 @@ SOURCES += \
     datacontroller.cpp \
     libraries/sqlite3/sqlite3.c \
     main.cpp \
-    mainwindow.cpp \
-    user.cpp
+    mainwindow.cpp
 
 HEADERS += \
     databasecontroller.h \
@@ -31,8 +30,7 @@ HEADERS += \
     libraries/sqlite3/sqlite3.h \
     libraries/sqlite3/sqlite3ext.h \
     mainwindow.h \
-    structures.h \
-    user.h
+    structures.h
 
 FORMS += \
     mainwindow.ui

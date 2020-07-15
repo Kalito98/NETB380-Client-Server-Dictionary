@@ -99,7 +99,6 @@ void MainWindow::readSocket()
         // read all data that we have received
         QString receiveString;
         in >> receiveString;
-        std::cout << receiveString.toStdString() << std::endl;
 
         // display the data that we have received
        // receiveString.prepend(QString("%1 :: ").arg(socket->socketDescriptor()));
@@ -136,15 +135,14 @@ void MainWindow::sendMessage(QTcpSocket* socket, const QString& incoming)
         {
             //split the incoming command
             string str = incoming.toUtf8().constData();
-            std::cout << str << std::endl;
-
-            std::replace(str.begin(), str.end(), ',', ' ');
+            stringstream ss(str);
+            string segment;
 
             vector<string> array;
-            stringstream ss(str);
-            string temp;
-            while (ss >> temp)
-                array.push_back(temp);
+
+            while(getline(ss, segment, ',')){
+                array.push_back(segment);
+            }
 
             QString command = QString::fromStdString(array.at(0));
 
@@ -160,6 +158,7 @@ void MainWindow::sendMessage(QTcpSocket* socket, const QString& incoming)
             QString GetAllDictionaries = "GetAllDictionaries";
             QString CreateDictionary = "CreateDictionary";
             QString GetAllItemsByDictionary = "GetAllItemsByDictionary";
+            QString CreateDictionaryItem = "CreateDictionaryItem";
 
             int getAllUsersQuery = QString::compare(getAllusers, command, Qt::CaseInsensitive);
             int getUserByEmailQuery = QString::compare(GetUserByEmail, command, Qt::CaseInsensitive);
@@ -167,6 +166,7 @@ void MainWindow::sendMessage(QTcpSocket* socket, const QString& incoming)
             int getAllDictionariesQuery = QString::compare(GetAllDictionaries, command, Qt::CaseInsensitive);
             int createDictionaryQuery = QString::compare(CreateDictionary, command, Qt::CaseInsensitive);
             int getAllItemsByDictionaryQuery = QString::compare(GetAllItemsByDictionary, command, Qt::CaseInsensitive);
+            int createDictionaryItemQuery = QString::compare(CreateDictionaryItem, command, Qt::CaseInsensitive);
 
             if (getAllUsersQuery == 0) {
                 QVector<User> usersQVector;
@@ -182,8 +182,6 @@ void MainWindow::sendMessage(QTcpSocket* socket, const QString& incoming)
                  QVector<User> usersQVector;
                  vector<User> usersVector = dataController->GetUserByEmail(email);
                  usersQVector = QVector<User>::fromStdVector(usersVector);
-
-                 std::cout << usersQVector.at(0).firstName.toStdString() << std::endl;
 
                  out << usersQVector;
 
@@ -228,6 +226,20 @@ void MainWindow::sendMessage(QTcpSocket* socket, const QString& incoming)
                 itemQVector = QVector<DictionaryItem>::fromStdVector(itemVector);
 
                 out << itemQVector;
+            } else if (createDictionaryItemQuery == 0) {
+                string dictionaryName = array.at(1);
+                string word = array.at(2);
+                string description = array.at(3);
+                string createdOn = array.at(4);
+                string createdBy = array.at(5);
+
+                bool isSuccessful = dataController->CreateDictionaryItem(dictionaryName, word, description, createdOn, createdBy);
+
+                if(isSuccessful) {
+                    out << QString::fromStdString("true");
+                } else {
+                    out << QString::fromStdString("false");
+                }
             }
 
             // write inside the socket

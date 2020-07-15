@@ -28,17 +28,15 @@ void Signup::on_pushButton_clicked()
     delay();
 
     QString isSuccessfull = crequester->isSuccessful;
-    std::cout << isSuccessfull.toStdString() << std::endl;
-
-    if (QString::compare(isSuccessfull, QString::fromStdString("true"), Qt::CaseInsensitive) == 0){
-
+    if (QString::compare(isSuccessfull, QString::fromStdString("true"), Qt::CaseInsensitive)== 0){
         QMessageBox::information(this,"Register","Account Created Successfully!");
+        crequester->~clientrequester();
         this->hide();
             login = new Login(this);
             login->show();
     }
     else{
-        QMessageBox::warning(this, "Register", "Hui");
+        QMessageBox::warning(this, "Register", "The registration was unsuccessful!");
     }
 
 }
