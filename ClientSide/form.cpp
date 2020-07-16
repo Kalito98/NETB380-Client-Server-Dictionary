@@ -25,7 +25,7 @@ void Form::on_LogIn_clicked()
     delay();
 
     QVector<Dictionary> dictionaryQVector = crequester->globalDictionary;
-
+    crequester->~clientrequester();
     this->hide();
         login = new Login(dictionaryQVector, this);
         login->show();
@@ -33,6 +33,7 @@ void Form::on_LogIn_clicked()
 
 void Form::on_SignUp_clicked()
 {
+    crequester->~clientrequester();
 
     this->hide();
         signup = new Signup(this);
